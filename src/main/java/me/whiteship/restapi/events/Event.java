@@ -2,7 +2,6 @@ package me.whiteship.restapi.events;
 
 import lombok.*;
 
-import javax.persistence.Entity;
 import java.time.LocalDateTime;
 
 @Getter
