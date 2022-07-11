@@ -1,5 +1,6 @@
 package me.whiteship.restapi.events;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -90,10 +91,34 @@ public class EventControllerTest {
 
     @Test
     public void createEvent_Bad_Request_Empty_Input() throws Exception {
+        // 빈데이터가 들어왔을때 validation 처리
         EventDto eventDto = EventDto.builder().build();     //아무 값도 안넣어주고 보내본다
         this.mockMvc.perform(post("/api/events")
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(this.objectMapper.writeValueAsString(eventDto)))
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createEvent_Bad_Request_Wrong_Input() throws Exception {
+        // 잘못된 데이터가 들어왔을때의 validation 처리 : 이벤트 끝나는 날짜가 시작 날짜보다 빠르다. , Max가 base보다 작다 -> 잘못됨
+        // 이런 경우에는 @Valid과 같은 어노테이션으로 검증이 불가능함 -> 직접 Validation을 생성해줘야함!
+        EventDto eventDto = EventDto.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2018, 11, 26, 14, 21))
+                .closeEnrollmentDateTime(LocalDateTime.of(2018, 11, 25, 14, 21))
+                .beginEventDateTime(LocalDateTime.of(2018, 11, 24, 14, 21))
+                .endEventDateTime(LocalDateTime.of(2018, 11, 23, 14, 21))
+                .basePrice(10000)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D2 스타텁 팩토리")
+                .build();
+
+        this.mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isBadRequest());
     }
 

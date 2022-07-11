@@ -26,10 +26,21 @@ public class EventController {
 
     private final ModelMapper modelMapper;
 
+    private final EventValidator eventValidator;
+
     // Valid 어노테이션을 사용하면 EventDto 에 설정해놓은 정보를 들을 토대로 들어온 데이터를 검증한다.
     // 검증 후 만약 에러가 발생하거나 하는 결과값은 Errors에 담긴다.
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
+        if(errors.hasErrors()){
+            // error가 발생하면 badRequest를 발생시킴
+            return ResponseEntity.badRequest().build();
+        }
+        
+        // 위에서 바인딩할때 에러가 없으면 로직으로 검증한다.
+        eventValidator.validate(eventDto, errors);
+        
+        // 로직 검증 후 다시 한번 에러 체크
         if(errors.hasErrors()){
             // error가 발생하면 badRequest를 발생시킴
             return ResponseEntity.badRequest().build();
