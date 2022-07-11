@@ -32,9 +32,10 @@ public class EventController {
     // 검증 후 만약 에러가 발생하거나 하는 결과값은 Errors에 담긴다.
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
+        // Event와 같은 객체는 java Bean 스팩을 준수하고이썽서 BeanSerializer로 json으로 변환 가능하다 but, errors는  java Bean 스팩을 준수하고 있지 않아서 json으로 변환 불가!
         if(errors.hasErrors()){
             // error가 발생하면 badRequest를 발생시킴
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
         
         // 위에서 바인딩할때 에러가 없으면 로직으로 검증한다.
@@ -43,13 +44,13 @@ public class EventController {
         // 로직 검증 후 다시 한번 에러 체크
         if(errors.hasErrors()){
             // error가 발생하면 badRequest를 발생시킴
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
 
         // 원래대로 라면 builder를 이용하여 EventDto -> Event로 바꿔줘야함
         // 생략하려면? ModelMapper 이용!
         Event event = modelMapper.map(eventDto, Event.class);
-        
+
         Event newEvent = eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
