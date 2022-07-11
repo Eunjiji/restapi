@@ -2,6 +2,7 @@ package me.whiteship.restapi.events;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.whiteship.restapi.common.TestDescription;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +34,7 @@ public class EventControllerTest {
     ObjectMapper objectMapper;
 
     @Test
+    @TestDescription("정상적으로 이벤트를 생성하는 테스트")
     public void createEvent() throws Exception {
         EventDto event = EventDto.builder()
                 .name("Spring")
@@ -40,6 +42,7 @@ public class EventControllerTest {
                 .beginEnrollmentDateTime(LocalDateTime.of(2018, 11, 23, 14, 21))
                 .closeEnrollmentDateTime(LocalDateTime.of(2018, 11, 25, 14, 21))
                 .beginEventDateTime(LocalDateTime.of(2018, 11, 26, 14, 21))
+                .endEventDateTime(LocalDateTime.of(2018, 11, 27, 14, 21))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -48,7 +51,7 @@ public class EventControllerTest {
 
 
         mockMvc.perform(post("/api/events/")    // post 요청을 보내고 -> perform을 하고 나면 응답이 옴
-                .contentType(MediaType.APPLICATION_JSON)    // 요청에 json을 담아서 보내고 있다고 알려줌
+                .contentType(MediaType.APPLICATION_JSON_UTF8)    // 요청에 json을 담아서 보내고 있다고 알려줌
                 .accept(MediaTypes.HAL_JSON)   // 원하는 응답의 타입
                 .content(objectMapper.writeValueAsString(event)))   // 객체를 json으로 변환
                 .andDo(print()) // 실제 응답이 어떻게 나왔는지 console에서 볼수 있음
@@ -63,6 +66,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @TestDescription("입력값이 입력받을수 없는 값을 사용하는 경우에 에러가 발생가는 테스트")
     public void createEvent_Bad_Request() throws Exception {
         Event event = Event.builder()
                 .id(100)
@@ -90,6 +94,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @TestDescription("입력값이 비어있는 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request_Empty_Input() throws Exception {
         // 빈데이터가 들어왔을때 validation 처리
         EventDto eventDto = EventDto.builder().build();     //아무 값도 안넣어주고 보내본다
@@ -100,6 +105,7 @@ public class EventControllerTest {
     }
 
     @Test
+    @TestDescription("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request_Wrong_Input() throws Exception {
         // 잘못된 데이터가 들어왔을때의 validation 처리 : 이벤트 끝나는 날짜가 시작 날짜보다 빠르다. , Max가 base보다 작다 -> 잘못됨
         // 이런 경우에는 @Valid과 같은 어노테이션으로 검증이 불가능함 -> 직접 Validation을 생성해줘야함!
