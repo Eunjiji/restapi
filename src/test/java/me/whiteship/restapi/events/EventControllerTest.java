@@ -1,9 +1,7 @@
 package me.whiteship.restapi.events;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.whiteship.restapi.common.TestDescription;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -41,8 +40,8 @@ public class EventControllerTest {
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2018, 11, 23, 14, 21))
                 .closeEnrollmentDateTime(LocalDateTime.of(2018, 11, 25, 14, 21))
-                .beginEventDateTime(LocalDateTime.of(2018, 11, 26, 14, 21))
-                .endEventDateTime(LocalDateTime.of(2018, 11, 27, 14, 21))
+                .beginEventDateTime(LocalDateTime.of(2018, 11, 23, 14, 21))
+                .endEventDateTime(LocalDateTime.of(2018, 11, 25, 14, 21))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -50,7 +49,7 @@ public class EventControllerTest {
                 .build();
 
 
-        mockMvc.perform(post("/api/events/")    // post 요청을 보내고 -> perform을 하고 나면 응답이 옴
+        mockMvc.perform(post("/api/events")    // post 요청을 보내고 -> perform을 하고 나면 응답이 옴
                 .contentType(MediaType.APPLICATION_JSON_UTF8)    // 요청에 json을 담아서 보내고 있다고 알려줌
                 .accept(MediaTypes.HAL_JSON)   // 원하는 응답의 타입
                 .content(objectMapper.writeValueAsString(event)))   // 객체를 json으로 변환
@@ -59,8 +58,9 @@ public class EventControllerTest {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
-                .andExpect(jsonPath("id").value(Matchers.not(100)))
-                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("free").value(false))
+                // 단위 테스트(EventTest.java 확인) 에서 update 관련 테스트를 진행하고 controller에서 update를 진행했기 때문에 테스트 통과 가능
+                .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
 
     }
@@ -84,7 +84,7 @@ public class EventControllerTest {
                 .build();
 
 
-        mockMvc.perform(post("/api/events/")    // post 요청을 보내고 -> perform을 하고 나면 응답이 옴
+        mockMvc.perform(post("/api/events")    // post 요청을 보내고 -> perform을 하고 나면 응답이 옴
                 .contentType(MediaType.APPLICATION_JSON)    // 요청에 json을 담아서 보내고 있다고 알려줌
                 .accept(MediaTypes.HAL_JSON)   // 원하는 응답의 타입
                 .content(objectMapper.writeValueAsString(event)))   // 객체를 json으로 변환
@@ -132,7 +132,7 @@ public class EventControllerTest {
                 .andExpect(jsonPath("$[0].defaultMessage").exists())
                 .andExpect(jsonPath("$[0].code").exists())
                 .andExpect(jsonPath("$[0].rejectValue").exists())
-                ;
+        ;
     }
 
 }

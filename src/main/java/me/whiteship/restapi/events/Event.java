@@ -33,4 +33,19 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
 
+    public void update() {
+        // Update free
+        if(this.basePrice == 0 && this.maxPrice == 0){
+            this.free = true;
+        }else {
+            this.free = false;
+        }
+
+        //Update offline
+        if(this.location == null || this.location.isBlank()){    // java 11 부터 isBlank가 공백을 다 체크해줘서 isEmpty보다 훨씬 유용함
+            this.offline = false;
+        }else {
+            this.offline = true;
+        }
+    }
 }

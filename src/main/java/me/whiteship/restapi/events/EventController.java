@@ -51,7 +51,10 @@ public class EventController {
         // 생략하려면? ModelMapper 이용!
         Event event = modelMapper.map(eventDto, Event.class);
 
+        // 아래 두줄은 보통은 service 에서 실행하는데 워낙 간단한 코드라 controller에서 진행
+        event.update();     // 이벤트를 저장하기 전에 free 관련 로직 확인
         Event newEvent = eventRepository.save(event);
+
         URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
     }
