@@ -61,8 +61,10 @@ public class EventControllerTest {
                 .andExpect(jsonPath("free").value(false))
                 // 단위 테스트(EventTest.java 확인) 에서 update 관련 테스트를 진행하고 controller에서 update를 진행했기 때문에 테스트 통과 가능
                 .andExpect(jsonPath("offline").value(true))
-                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
-
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
+                .andExpect(jsonPath("_links.update-event").exists());
     }
 
     @Test

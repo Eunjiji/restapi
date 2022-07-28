@@ -4,29 +4,30 @@ import java.util.*;
 
 public class CodeTest {
 
-    public static int solution(int[][] sizes){
-        int answer = 0;
+    public static int[] solution(int[] arr) {
+        int[] answer = {};
+        ArrayList<Integer> list = new ArrayList<>();
 
-        // 작은수 중 큰 수 * 큰수중 큰수
-        List<Integer> min = new ArrayList<>();
-        List<Integer> max = new ArrayList<>();
+        int compareNum = 10;
 
-        for(int i=0; i< sizes.length; i++){
-            if(sizes[i][0] < sizes[i][1]){
-                min.add(sizes[i][0]);
-                max.add(sizes[i][1]);
-            }else{
-                min.add(sizes[i][1]);
-                max.add(sizes[i][0]);
+        for(int num : arr){
+            if(compareNum != num){
+                list.add(num);
             }
+
+            compareNum = num;
         }
 
-        answer = Collections.max(min) * Collections.max(max);
+        answer = new int[list.size()];
+
+        for(int i=0; i< answer.length;i++){
+          answer[i] =  list.get(i).intValue();
+        }
         return answer;
     }
 
     public static void main(String[] args) {
-        int[][] num = {{60, 50}, {30, 70}, {60, 30}, {80, 40}};
-        solution(num);
+        int[] list = {1,1,3,3, 0, 1,1};
+        solution(list);
     }
 }
